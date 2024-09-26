@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                                  
+    "module": "NodeNext",
+    "rootDir": "./src",                                  
+    "moduleResolution": "nodenext",                                              
+    "resolveJsonModule": true,                        
+    "allowJs": true,                                  
+    "checkJs": true,                                  
+    "declaration": true,                                                            
+    "outDir": "./dist",                                                            
+    "noEmit": false,                                               
+    "esModuleInterop": true,                                                     
+    "forceConsistentCasingInFileNames": true,            
+    "strict": true,                                      
+    "noImplicitAny": true,                            
+    "skipDefaultLibCheck": true,                      
+    "skipLibCheck": true                                 
+  },
+  "exclude": ["dist", "tmp"],
+}
