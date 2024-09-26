@@ -2,6 +2,8 @@
 
 Simple, convenient, powerful low-level server with streaming support
 
+>**Module standard: `ESModule (ESM)`. _`CommonJS` is not supported now_**.
+
 ## Simple
 
 Minimal interference with the standard NodeJS `http` server
