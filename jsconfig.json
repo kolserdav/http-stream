@@ -1,21 +1,25 @@
 {
   "compilerOptions": {
-    "target": "ESNext",                                  
+    "target": "ESNext",
     "module": "NodeNext",
-    "rootDir": "./src",                                  
-    "moduleResolution": "nodenext",                                              
-    "resolveJsonModule": true,                        
-    "allowJs": true,                                  
-    "checkJs": true,                                  
-    "declaration": true,                                                            
-    "outDir": "./dist",                                                            
-    "noEmit": false,                                               
-    "esModuleInterop": true,                                                     
-    "forceConsistentCasingInFileNames": true,            
-    "strict": true,                                      
-    "noImplicitAny": true,                            
-    "skipDefaultLibCheck": true,                      
-    "skipLibCheck": true                                 
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./types",
+    "noEmit": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
   },
-  "exclude": ["dist", "tmp"],
+  "exclude": ["node_modules"],
+  "include": [
+    "examples",
+    "src"
+  ]
 }

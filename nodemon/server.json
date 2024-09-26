@@ -1,0 +1,5 @@
+{
+  "watch": [
+    "examples/server.js"
+  ]
+}

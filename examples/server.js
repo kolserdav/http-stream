@@ -2,6 +2,8 @@ import { createServer } from 'http';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
+const cwd = process.cwd();
+
 const server = createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/upload') {
     /**
@@ -15,7 +17,7 @@ const server = createServer((req, res) => {
 
     req.on('end', () => {
       const buffer = Buffer.concat(chunks);
-      writeFileSync(join(__dirname, 'dist/uploaded_file'), buffer);
+      writeFileSync(join(cwd, 'dist/uploaded_file'), buffer);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
         JSON.stringify({
@@ -29,6 +31,10 @@ const server = createServer((req, res) => {
       console.error('Error receiving data:', err);
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'error', message: err.message }));
+    });
+
+    req.on('close', () => {
+      console.log('Request closed');
     });
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });

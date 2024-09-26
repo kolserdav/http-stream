@@ -5,7 +5,6 @@ const chunks = [
 ];
 
 /**
- *
  * @param {Uint8Array[]} chunks
  */
 const uploadChunks = async (chunks) => {
