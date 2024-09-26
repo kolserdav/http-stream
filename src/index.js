@@ -18,7 +18,6 @@ export { HEADER, METHOD, MIME_TYPE, STATUS };
  *  query: Q;
  *  url: string;
  *  search: string;
- *  headers: Headers;
  * }} HttpRequest
  */
 
@@ -29,6 +28,7 @@ export { HEADER, METHOD, MIME_TYPE, STATUS };
 
 export default class HttpStream {
   /**
+   * @private
    * @type {Record<string, {
    *  method: typeof METHOD[keyof typeof METHOD];
    *  cb: RouteHandler<any>
@@ -62,6 +62,7 @@ export default class HttpStream {
         return;
       }
 
+      // Checking if a route exists
       if (!this.routes[url]) {
         res.writeHead(STATUS.notFound, {
           [HEADER.contentType]: MIME_TYPE.textPlain,
@@ -102,7 +103,6 @@ export default class HttpStream {
     _req.query = this.parseQueryString(url || URL_DEFAULT);
     _req.search = this.getQueryString(url || URL_DEFAULT);
     _req.url = this.cleanUrl(url);
-    _req.headers = this.parseHeaders(req.rawHeaders);
     return _req;
   }
 
@@ -212,24 +212,6 @@ export default class HttpStream {
     });
 
     return /** @type {typeof this.as<T>} */ (this.as)(result);
-  }
-
-  /**
-   * @private
-   * @param {string[]} rawHeaders
-   * @returns {Headers}
-   */
-  parseHeaders(rawHeaders) {
-    /**
-     * @type {Headers}
-     */
-    const res = {};
-    rawHeaders.forEach((item, index) => {
-      if (index % 2 === 0) {
-        res[item.toLowerCase()] = rawHeaders[index + 1];
-      }
-    });
-    return res;
   }
 
   /**

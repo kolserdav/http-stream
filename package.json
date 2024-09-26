@@ -1,8 +1,8 @@
 {
   "name": "@kolserdav/http-stream",
   "version": "0.0.1",
-  "description": "Simple stream server",
-  "main": "server.js",
+  "description": "Simple, convenient, powerful low-level server with streaming support",
+  "main": "src/index.js",
   "type": "module",
   "types": "types",
   "repository": "https://github.com/kolserdav/http-stream.git",
@@ -16,8 +16,12 @@
     "dev:client": "nodemon --config nodemon/client.json examples/client.js",
     "build": "rimraf types && tsc -p ./jsconfig.json"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "http",
+    "stream",
+    "chunked"
+  ],
+  "author": "kolserdav",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.7.2",

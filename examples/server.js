@@ -1,4 +1,3 @@
-import { createServer } from 'http';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import HttpStream from '../src/index.js';
@@ -24,7 +23,7 @@ const port = 3000;
   }
 );
 
-/** @type {typeof server.get<{test: string}>} */ server.post('/upload', async (req, res) => {
+server.post('/upload', async (req, res) => {
   /**
    * @type {Buffer[]}
    */
