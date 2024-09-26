@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import HttpStream from '../src/index.js';
-import { HEADER, MIME_TYPE, STATUS } from '../src/utils/constants.js';
+import { HEADER, MIME_TYPE, STATUS } from '../src/constants.js';
 
 const server = new HttpStream();
 

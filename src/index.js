@@ -1,8 +1,7 @@
 import { createServer, ServerResponse, IncomingMessage } from 'http';
-import { HEADER, METHOD, MIME_TYPE, STATUS, URL_DEFAULT } from './utils/constants.js';
-import { as, cleanUrl } from './utils/lib.js';
+import { HEADER, METHOD, MIME_TYPE, STATUS, URL_DEFAULT } from './constants.js';
 
-export { HEADER, METHOD, MIME_TYPE, STATUS, cleanUrl };
+export { HEADER, METHOD, MIME_TYPE, STATUS };
 
 /**
  * @typedef {IncomingMessage} Request
@@ -48,12 +47,14 @@ export default class HttpStream {
     const httpServer = createServer(async (req, res) => {
       const { method, url: _url } = req;
 
-      const url = cleanUrl(_url);
+      const url = this.cleanUrl(_url);
 
       if (method === METHOD.options) {
         res.writeHead(204, {
           Allow: Object.keys(METHOD)
-            .map((item) => METHOD[/** @type {typeof as<keyof typeof METHOD>} */ (as)(item)])
+            .map(
+              (item) => METHOD[/** @type {typeof this.as<keyof typeof METHOD>} */ (this.as)(item)]
+            )
             .join(', '),
           [HEADER.contentLength]: 0,
         });
@@ -78,7 +79,7 @@ export default class HttpStream {
       const _req = this.rewriteRequest(req);
 
       // Run callback
-      this.routes[url].cb(as(_req), res);
+      this.routes[url].cb(this.as(_req), res);
     });
 
     httpServer.listen(port, () => {
@@ -97,11 +98,11 @@ export default class HttpStream {
     /**
      * @type {HttpRequest<any>}
      */
-    const _req = as(req);
-    _req.query = parseQueryString(url || URL_DEFAULT);
-    _req.search = getQueryString(url || URL_DEFAULT);
-    _req.url = cleanUrl(url);
-    _req.headers = parseHeaders(req.rawHeaders);
+    const _req = this.as(req);
+    _req.query = this.parseQueryString(url || URL_DEFAULT);
+    _req.search = this.getQueryString(url || URL_DEFAULT);
+    _req.url = this.cleanUrl(url);
+    _req.headers = this.parseHeaders(req.rawHeaders);
     return _req;
   }
 
@@ -160,61 +161,84 @@ export default class HttpStream {
       cb,
     };
   }
-}
 
-/**
- * Get search params from url
- * @param {string} url
- */
-export function getQueryString(url) {
-  if (url.startsWith('/')) {
-    url = 'http://localhost' + url;
+  /**
+   * @private
+   * @param {string | undefined} url
+   * @returns
+   */
+  cleanUrl(url) {
+    if (!url) {
+      return URL_DEFAULT;
+    }
+    return url.replace(/[\?#].*$/, '');
   }
 
-  const parsedUrl = new URL(url);
-  return parsedUrl.search;
-}
-
-/**
- * @template T
- * @param {string} url
- * @returns {T}
- */
-export function parseQueryString(url) {
-  const queryString = getQueryString(url);
-  const pairs = queryString.slice(1).split('&');
   /**
-   * @type {QueryString}
+   * @private
+   * @param {string} url
    */
-  const result = {};
-
-  pairs.forEach((pair) => {
-    const [key, value] = pair.split('=');
-    const decodedKey = decodeURIComponent(key);
-    const decodedValue = decodeURIComponent(value || '');
-
-    if (decodedValue) {
-      result[decodedKey] = decodedValue;
+  getQueryString(url) {
+    if (url.startsWith('/')) {
+      url = 'http://localhost' + url;
     }
-  });
 
-  return /** @type {typeof as<T>} */ (as)(result);
-}
+    const parsedUrl = new URL(url);
+    return parsedUrl.search;
+  }
 
-/**
- * Parse array of headers to object
- * @param {string[]} rawHeaders
- * @returns {Headers}
- */
-export function parseHeaders(rawHeaders) {
   /**
-   * @type {Headers}
+   * @private
+   * @template T
+   * @param {string} url
+   * @returns {T}
    */
-  const res = {};
-  rawHeaders.forEach((item, index) => {
-    if (index % 2 === 0) {
-      res[item.toLowerCase()] = rawHeaders[index + 1];
-    }
-  });
-  return res;
+  parseQueryString(url) {
+    const queryString = this.getQueryString(url);
+    const pairs = queryString.slice(1).split('&');
+    /**
+     * @type {QueryString}
+     */
+    const result = {};
+
+    pairs.forEach((pair) => {
+      const [key, value] = pair.split('=');
+      const decodedKey = decodeURIComponent(key);
+      const decodedValue = decodeURIComponent(value || '');
+
+      if (decodedValue) {
+        result[decodedKey] = decodedValue;
+      }
+    });
+
+    return /** @type {typeof this.as<T>} */ (this.as)(result);
+  }
+
+  /**
+   * @private
+   * @param {string[]} rawHeaders
+   * @returns {Headers}
+   */
+  parseHeaders(rawHeaders) {
+    /**
+     * @type {Headers}
+     */
+    const res = {};
+    rawHeaders.forEach((item, index) => {
+      if (index % 2 === 0) {
+        res[item.toLowerCase()] = rawHeaders[index + 1];
+      }
+    });
+    return res;
+  }
+
+  /**
+   * @private
+   * @template T
+   * @param {any} data
+   * @returns {T}
+   */
+  as(data) {
+    return data;
+  }
 }
