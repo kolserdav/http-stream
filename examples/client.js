@@ -15,24 +15,26 @@ const uploadChunks = async (chunks) => {
     offset += chunk.length;
   }
 
-  try {
-    const response = await fetch('http://localhost:3000/upload', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-      },
-      body: combinedChunks,
-    });
+  const response = await fetch('http://localhost:3000/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+    },
+    body: combinedChunks,
+  }).catch((error) => {
+    console.error('Error uploading chunks: ', error);
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Chunks uploaded successfully: ', data.message);
-  } catch (error) {
-    console.error('Error uploading chunks:', error);
+  if (!response) {
+    return;
   }
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log('Chunks uploaded successfully:', data.message);
 };
 
 uploadChunks(chunks);

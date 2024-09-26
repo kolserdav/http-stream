@@ -1,48 +1,62 @@
 import { createServer } from 'http';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import HttpStream from '../src/index.js';
+import { HEADER, MIME_TYPE, STATUS } from '../src/utils/constants.js';
+
+const server = new HttpStream();
 
 const cwd = process.cwd();
 
-const server = createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/upload') {
-    /**
-     * @type {Buffer[]}
-     */
-    const chunks = [];
+const port = 3000;
 
-    req.on('data', (chunk) => {
-      chunks.push(chunk);
+/** Query string generic @type {typeof server.get<{test: string}>} */ (server.get)(
+  '/test',
+  async (req, res) => {
+    console.log('Query string', req.query.test, req.headers);
+    console.log('Request headers', req.headers);
+    const data = 'Hello World!';
+    res.writeHead(STATUS.ok, {
+      [HEADER.contentType]: MIME_TYPE.textPlain,
+      [HEADER.contentLength]: data.length,
     });
-
-    req.on('end', () => {
-      const buffer = Buffer.concat(chunks);
-      writeFileSync(join(cwd, 'dist/uploaded_file'), buffer);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          status: 'success',
-          message: 'File uploaded successfully',
-        })
-      );
-    });
-
-    req.on('error', (err) => {
-      console.error('Error receiving data:', err);
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'error', message: err.message }));
-    });
-
-    req.on('close', () => {
-      console.log('Request closed');
-    });
-  } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not Found' }));
+    res.end(data);
   }
+);
+
+/** @type {typeof server.get<{test: string}>} */ server.post('/upload', async (req, res) => {
+  /**
+   * @type {Buffer[]}
+   */
+  const chunks = [];
+
+  req.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
+
+  req.on('end', () => {
+    const buffer = Buffer.concat(chunks);
+    writeFileSync(join(cwd, 'dist/uploaded_file'), buffer);
+    res.writeHead(200, { [HEADER.contentType]: MIME_TYPE.applicationJSON });
+    res.end(
+      JSON.stringify({
+        status: 'success',
+        message: 'File uploaded successfully',
+      })
+    );
+  });
+
+  req.on('error', (err) => {
+    console.error('Error receiving data:', err);
+    res.writeHead(STATUS.internalServerError, { [HEADER.contentType]: MIME_TYPE.applicationJSON });
+    res.end(JSON.stringify({ status: 'error', message: err.message }));
+  });
+
+  req.on('close', () => {
+    console.log('Request closed');
+  });
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+server.listen({ port }, () => {
+  console.log('Server listen at port', port);
 });
