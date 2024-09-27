@@ -21,6 +21,9 @@ export namespace HEADER {
     let origin: string;
     let referer: string;
     let transferEncoding: string;
+    let accessControlAllowOrigin: string;
+    let accessControlAllowMethods: string;
+    let accessControlAllowHeaders: string;
 }
 export namespace MIME_TYPE {
     let textPlain: string;

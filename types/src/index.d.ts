@@ -12,6 +12,7 @@
  *  query: Q;
  *  url: string;
  *  search: string;
+ *  origin: string;
  * }} HttpRequest
  */
 /**
@@ -31,11 +32,19 @@ export default class HttpStream {
      * @public
      * @param {{
      *  port: number;
+     *  cors?: {
+     *    origin: string | string[]
+     *    allowedHeaders?: string | string[]
+     * }
      * }} options
      * @param {() => void} cb
      */
-    public listen({ port }: {
+    public listen({ port, cors }: {
         port: number;
+        cors?: {
+            origin: string | string[];
+            allowedHeaders?: string | string[];
+        };
     }, cb?: () => void): void;
     /**
      * Add convenience properties to 'req'
@@ -112,6 +121,7 @@ export type HttpRequest<Q> = Request & {
     query: Q;
     url: string;
     search: string;
+    origin: string;
 };
 export type RouteHandler<Q> = (req: HttpRequest<Q>, res: Response) => Promise<void>;
 import { HEADER } from './constants.js';

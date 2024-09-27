@@ -18,6 +18,7 @@ export { HEADER, METHOD, MIME_TYPE, STATUS };
  *  query: Q;
  *  url: string;
  *  search: string;
+ *  origin: string;
  * }} HttpRequest
  */
 
@@ -40,23 +41,40 @@ export default class HttpStream {
    * @public
    * @param {{
    *  port: number;
+   *  cors?: {
+   *    origin: string | string[]
+   *    allowedHeaders?: string | string[]
+   * }
    * }} options
    * @param {() => void} cb
    */
-  listen({ port }, cb = () => {}) {
+  listen({ port, cors }, cb = () => {}) {
+    const { origin, allowedHeaders } = cors || {};
     const httpServer = createServer(async (req, res) => {
-      const { method, url: _url } = req;
-
+      const { method, url: _url, headers } = req;
       const url = this.cleanUrl(_url);
-
+      console.log(1, req);
       if (method === METHOD.options) {
-        res.writeHead(204, {
-          Allow: Object.keys(METHOD)
-            .map(
-              (item) => METHOD[/** @type {typeof this.as<keyof typeof METHOD>} */ (this.as)(item)]
-            )
-            .join(', '),
+        console.log(11, Object.keys(headers).join(', '));
+        const methods = Object.keys(METHOD)
+          .map((item) => METHOD[/** @type {typeof this.as<keyof typeof METHOD>} */ (this.as)(item)])
+          .join(', ');
+        res.writeHead(STATUS.noContent, {
+          Allow: methods,
           [HEADER.contentLength]: 0,
+          [HEADER.accessControlAllowOrigin]: Array.isArray(origin)
+            ? origin.join(', ')
+            : origin || '',
+          [HEADER.accessControlAllowMethods]: origin ? methods : '',
+          [HEADER.accessControlAllowHeaders]: origin
+            ? `Origin, X-Requested-With, Content-Type, Accept, Authorization, ${
+                allowedHeaders
+                  ? Array.isArray(allowedHeaders)
+                    ? allowedHeaders.join(', ')
+                    : allowedHeaders
+                  : ''
+              }`
+            : '',
         });
         res.end();
         return;
@@ -95,7 +113,7 @@ export default class HttpStream {
    * @returns {HttpRequest<any>}
    */
   rewriteRequest(req) {
-    const { url } = req;
+    const { url, headers } = req;
     /**
      * @type {HttpRequest<any>}
      */
@@ -103,6 +121,7 @@ export default class HttpStream {
     _req.query = this.parseQueryString(url || URL_DEFAULT);
     _req.search = this.getQueryString(url || URL_DEFAULT);
     _req.url = this.cleanUrl(url);
+    _req.origin = headers.origin || '';
     return _req;
   }
 

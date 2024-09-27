@@ -2,7 +2,7 @@
 
 Simple, convenient, powerful low-level server with streaming support
 
->**Module standard: `ESModule (ESM)`. _`CommonJS` is not supported now_**.
+> **Module standard: `ESModule (ESM)`. _`CommonJS` is not supported now_**.
 
 ## Simple
 
@@ -27,6 +27,7 @@ const result = JSON.stringify({ data: 'Hello World!' });
 res.writeHead(STATUS.ok, {
   [HEADER.contentType]: MIME_TYPE.applicationJSON,
   [HEADER.contentLength]: result.length,
+  [HEADER.accessControlAllowOrigin]: origin, // If you use CORS
 });
 res.end(result);
 ```

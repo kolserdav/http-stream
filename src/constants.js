@@ -21,6 +21,9 @@ export const HEADER = {
   origin: 'Origin',
   referer: 'Referer',
   transferEncoding: 'Transfer-Encoding',
+  accessControlAllowOrigin: 'Access-Control-Allow-Origin',
+  accessControlAllowMethods: 'Access-Control-Allow-Methods',
+  accessControlAllowHeaders: 'Access-Control-Allow-Headers',
 };
 
 export const MIME_TYPE = {
