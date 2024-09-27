@@ -53,7 +53,6 @@ export default class HttpStream {
     const httpServer = createServer(async (req, res) => {
       const { method, url: _url, headers } = req;
       const url = this.cleanUrl(_url);
-      console.log(1, req);
       if (method === METHOD.options) {
         console.log(11, Object.keys(headers).join(', '));
         const methods = Object.keys(METHOD)
