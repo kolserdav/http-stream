@@ -21,6 +21,14 @@
  */
 export default class HttpStream {
     /**
+     * @param {{
+     *   sync?: boolean;
+     * }} options
+     */
+    constructor(options?: {
+        sync?: boolean;
+    });
+    /**
      * @private
      * @type {Record<string, {
      *  method: typeof METHOD[keyof typeof METHOD];
@@ -28,6 +36,29 @@ export default class HttpStream {
      * }>}
      */
     private routes;
+    /**
+     * @private
+     * @type {{
+     *  req: HttpRequest<any>;
+     *  res: ServerResponse<IncomingMessage> & {
+     *     req: IncomingMessage;
+     *  }
+     * }[]}
+     */
+    private requestQueue;
+    /**
+     * @private
+     */
+    private sync;
+    /**
+     * @private
+     */
+    private isProcessing;
+    /**
+     * @private
+     * @returns
+     */
+    private processNextRequest;
     /**
      * @public
      * @param {{

@@ -38,6 +38,62 @@ export default class HttpStream {
   routes = {};
 
   /**
+   * @private
+   * @type {{
+   *  req: HttpRequest<any>;
+   *  res: ServerResponse<IncomingMessage> & {
+   *     req: IncomingMessage;
+   *  }
+   * }[]}
+   */
+  requestQueue = [];
+
+  /**
+   * @private
+   */
+  sync = false;
+
+  /**
+   * @private
+   */
+  isProcessing = false;
+
+  /**
+   * @param {{
+   *   sync?: boolean;
+   * }} options
+   */
+  constructor(options = {}) {
+    this.sync = options.sync || false;
+  }
+
+  /**
+   * @private
+   * @returns
+   */
+  processNextRequest = () => {
+    if (this.requestQueue.length === 0) {
+      this.isProcessing = false;
+      return;
+    }
+    if (this.sync) {
+      this.isProcessing = true;
+    }
+    const queue = this.requestQueue.shift();
+    if (!queue) {
+      console.error('Queue is missing', this.requestQueue);
+      return;
+    }
+
+    const { req, res } = queue;
+
+    // Run callback
+    this.routes[req.url].cb(this.as(req), res).finally(() => {
+      this.processNextRequest();
+    });
+  };
+
+  /**
    * @public
    * @param {{
    *  port: number;
@@ -51,10 +107,9 @@ export default class HttpStream {
   listen({ port, cors }, cb = () => {}) {
     const { origin, allowedHeaders } = cors || {};
     const httpServer = createServer(async (req, res) => {
-      const { method, url: _url, headers } = req;
+      const { method, url: _url } = req;
       const url = this.cleanUrl(_url);
       if (method === METHOD.options) {
-        console.log(11, Object.keys(headers).join(', '));
         const methods = Object.keys(METHOD)
           .map((item) => METHOD[/** @type {typeof this.as<keyof typeof METHOD>} */ (this.as)(item)])
           .join(', ');
@@ -95,9 +150,10 @@ export default class HttpStream {
       }
 
       const _req = this.rewriteRequest(req);
-
-      // Run callback
-      this.routes[url].cb(this.as(_req), res);
+      this.requestQueue.push({ req: _req, res });
+      if (!this.isProcessing) {
+        this.processNextRequest();
+      }
     });
 
     httpServer.listen(port, () => {

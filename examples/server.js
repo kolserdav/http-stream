@@ -3,7 +3,7 @@ import { join } from 'path';
 import HttpStream from '../src/index.js';
 import { HEADER, MIME_TYPE, STATUS } from '../src/constants.js';
 
-const server = new HttpStream();
+const server = new HttpStream({ sync: false });
 
 const cwd = process.cwd();
 
@@ -15,6 +15,25 @@ const port = 3000;
     console.log('Query string', req.query.test, req.headers);
     console.log('Request headers', req.headers);
     const data = 'Hello World!';
+    res.writeHead(STATUS.ok, {
+      [HEADER.contentType]: MIME_TYPE.textPlain,
+      [HEADER.contentLength]: data.length,
+    });
+    res.end(data);
+  }
+);
+
+/** Query string generic @type {typeof server.get<{test: string}>} */ (server.get)(
+  '/test/duration',
+  async (req, res) => {
+    console.log('Query string', req.query.test, req.headers);
+    console.log('Request headers', req.headers);
+    const data = 'Hello World!';
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(0);
+      }, 5000);
+    });
     res.writeHead(STATUS.ok, {
       [HEADER.contentType]: MIME_TYPE.textPlain,
       [HEADER.contentLength]: data.length,
